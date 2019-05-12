@@ -131,6 +131,7 @@ app.get('/shop', redirectLogin, (request, response) => {
             }
             db.collection("Accounts").findOne({email: request.session.userId}, (err, result) => {
                 response.render('shop.hbs',{
+                    itemerror: false,
                     admin: result.isAdmin,
                     products: productChunks,
                     username: request.session.userId
@@ -296,9 +297,11 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
                         })
                 }
             });
-            response.redirect('/shop')}
+            setTimeout(function () {
+                response.redirect('/shop')
+            }, 3000);
+        }
     })
-
 });
 
 app.post('/delete-item', redirectLogin, (request, response)=> {
@@ -332,8 +335,10 @@ app.post('/delete-item', redirectLogin, (request, response)=> {
                 }
             }
         }
+        setTimeout(function () {
+            response.redirect('/my_cart')
+        }, 3000);
     });
-    response.redirect('/my_cart')
 });
 
 app.post("/addProduct", (req, res) => {
@@ -355,7 +360,9 @@ app.post("/addProduct", (req, res) => {
                     if (err)
                         console.log(err);
                     else
-                        res.redirect('/shop');
+                        setTimeout(function () {
+                            res.redirect("/shop");
+                        }, 2000);
                 });
 
         } else
@@ -401,7 +408,7 @@ app.post('/registerAdmin', (req, res) => {
         } else {
             res.render('homenotlog.hbs',{
                 admin_error: true,
-                admin_message : "Passwords do not match"
+                admin_message : "Account already exists"
             })
         }
     })
@@ -470,27 +477,29 @@ app.post('/deleteProduct/:id', (req, res) => {
     })
 });
 
-//Checkout method for week 3
-// app.post('/checkout', (req,res)=>{
-//     var today = new Date();
-//     var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-//     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-//     var dateTime = date+' '+time;
-//     var db = utils.getDb();
-//     db.collection('Accounts').findOne({email: req.session.userId}, (err, document)=>{
-//
-//         var history = {};
-//         history['date'] = dateTime;
-//         history['items'] = document.cart;
-//         db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
-//             {
-//                 $push: {history: history}
-//             });
-//         db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
-//             { $set: {cart: []}})
-//     });
-//     res.redirect('/my_cart')
-//     });
+// Checkout method for week 3
+app.post('/checkout', (req,res)=>{
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+    var db = utils.getDb();
+    db.collection('Accounts').findOne({email: req.session.userId}, (err, document)=>{
+
+        var history = {};
+        history['date'] = dateTime;
+        history['items'] = document.cart;
+        db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
+            {
+                $push: {history: history}
+            });
+        db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
+            { $set: {cart: []}})
+    });
+    setTimeout(function () {
+        res.redirect('/my_cart');
+    }, 3000);
+});
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

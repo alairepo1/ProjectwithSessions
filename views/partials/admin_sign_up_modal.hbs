@@ -7,26 +7,34 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="wrapper">
-                    <div id="verifeye">
-                        <input type="password" placeholder="Admin Verification Code" id="adminPass">
-                        <button class="btn btn-outline-info" id="verifyButton">Verify</button>
-                    </div>
-                    <div id="sign_in" class="d-none">
-                        <form action="/registerAdmin" method="post" id="signupForm2">
-                            <label>E-mail:</label><br> <input id="email" name="email" minlength="5" maxlength="30" type="email" size="30" required><br>
-                            <label>Password:</label><br> <input id="pwd" name="pwd" type="password" size="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"  required><br>
-                            <label>Enter Password Again:</label><br> <input id="pwd2" name="pwd2" type="password" size="20" required><br>
-                            <br>
-                        </form>
+            <div class="row">
+                <div class="col align-self-start">
+                    <div class="modal-body">
+                        <div class="wrapper">
+                            <div id="verifeye">
+                                <input type="password" placeholder="Admin Verification Code" id="adminPass">
+                                <button class="btn btn-outline-info" id="verifyButton">Verify</button>
 
+                            </div>
+                            <div id="sign_in" class="d-none">
+                                <form action="/registerAdmin" method="post" id="signupForm2">
+                                    <label>E-mail:</label><br> <input id="email" name="email" minlength="5" maxlength="30" type="email" size="30" required><br>
+                                    <label>Password:</label><br> <input id="pwd" name="pwd" type="password" size="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"  required><br>
+                                    <label>Enter Password Again:</label><br> <input id="pwd2" name="pwd2" type="password" size="20" required><br>
+                                    <br>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <div class="col align-self-center">
+                        {{>adminalert}}
+                </div>
+            </div>
+            <div class="row-2">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" form="signupForm2" class="btn btn-primary">Create Account</button>
-                    {{>adminalert}}
                 </div>
             </div>
         </div>

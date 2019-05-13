@@ -7,20 +7,24 @@
 //closes the alert
 function closealert(){
 	var alert = document.getElementById('itemalert');
-	//alert.style.display = 'none';
-	
+	alert.style.display = 'none';
+
 };
 
 function itemadded(){
-	
+
 	var itemalert = document.getElementById('itemalert');
 	itemalert.style.display = 'inline-block';
+    // setTimeout(closealert(), 1500)
 };
 
 
 function itemremove(){
-    var itemalert = document.getElementById('itemalert');
-    itemalert.style.display = 'inline-block';
+    if (confirm('Remove quantity?')){
+        var itemalert = document.getElementById('itemalert');
+        itemalert.style.display = 'inline-block';
+        // setTimeout(closealert(), 1500)
+    }
 }
 
 </script>

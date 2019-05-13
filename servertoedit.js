@@ -337,7 +337,7 @@ app.post('/delete-item', redirectLogin, (request, response)=> {
         }
         setTimeout(function () {
             response.redirect('/my_cart')
-        }, 3000);
+        }, 2000);
     });
 });
 

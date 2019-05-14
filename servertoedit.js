@@ -93,19 +93,27 @@ app.get('/my_cart', redirectLogin, (request, response) => {
                 error: "Cannot connect to database"
             })
         }
-        var cart_list = [];
-        var total = 0;
-        for (var i = 0; i < docs[0].cart.length; i+=1){
-            total = total + (docs[0].cart[i].price * docs[0].cart[i].quantity)
+
+        if (docs.length > 0 ){
+            var cart_list = [];
+            var total = 0;
+            for (var i = 0; i < docs[0].cart.length; i+=1){
+                total = total + (docs[0].cart[i].price * docs[0].cart[i].quantity)
+            }
+            for (var i = 0; i < docs[0].cart.length; i+= 1) {
+                cart_list.push(docs[0].cart.slice(i, i + 1));
+            }
+            response.render('my_cart.hbs',{
+                products: cart_list,
+                total_price: total,
+                username: request.session.userId
+            })
+        } else if (docs.length === 0){
+            response.render('my_cart.hbs',{
+                username: request.session.userId
+            })
         }
-        for (var i = 0; i < docs[0].cart.length; i+= 1) {
-            cart_list.push(docs[0].cart.slice(i, i + 1));
-        }
-        response.render('my_cart.hbs',{
-            products: cart_list,
-            total_price: total,
-            username: request.session.userId
-        })
+
     });
 });
 
@@ -122,7 +130,9 @@ app.get('/shop', redirectLogin, (request, response) => {
         }
 
         if (!docs){
-            throw err;
+            response.render('404.hbs',{
+                error: "Nothing in database"
+            })
         }else {
             var productChunks = [];
             var chunkSize = 3;
@@ -213,11 +223,12 @@ app.post('/register', redirectHome, (req, res) => {
                 db.collection('Accounts').insertOne({
                     email: req.body.email,
                     pwd: bcryptjs.hashSync(req.body.pwd, salt),
+                    isAdmin: false,
                     cart: [],
                     history: []
                 });
                 req.session.userId = req.body.email;
-                return res.redirect('/home')
+                return res.redirect(302,'/home')
             }else{
              res.render('homenotlog.hbs',{
                  signup_error: true,
@@ -262,7 +273,9 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
 
     db.collection('Shoes').findOne( { _id : ObjectId(productId) }, (err, doc) => {
         if (err) {
-            throw err;
+            response.render('404.hbs',{
+                error: "Cannot connect to database"
+            })
         }
         if (!doc){
             response.render('404',{

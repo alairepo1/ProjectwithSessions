@@ -3,6 +3,7 @@ const assert = require('chai').assert;
 const mock = require('./mock_data.js');
 describe('server.js', function () {
     console.log('tests_2 start');
+
     it('/registerAdmin should give you a sessionID', function (done) {
         body = {};
         body.email = "T3STER2@AJZSHOE.COM";
@@ -50,7 +51,6 @@ describe('server.js', function () {
                         // console.log(response.res.text)
                         assert.equal(response.status, 200);
                         assert.equal(compare, true);
-                        // mock.teardown_admin()
                         done()
                     })
             })
@@ -75,16 +75,36 @@ describe('server.js', function () {
                 server
                     .post("/updateProduct/5cd4fb1e1c9d4400008b3f0b")
                     .send(body)
-                    .expect('302')
+                    .expect(302)
                     .end((err,res)=>{
                         assert.equal(res.status, 302);
                         //Checks price of changed item equal to 999.00
                         mock.check_update();
                         //Reverts price change back to 150.00
                         mock.revert_price();
-                        mock.teardown_admin();
                         done()
                     })
             })
-    })
+    });
+
+    it("/logout should clear the cookie", (done) => {
+        server
+            .get('/logout')
+            .expect(200)
+            .end(async(err, res) => {
+                assert.equal(res.status, 302);
+                try{
+                    let sess = res.headers["set-cookie"][0].includes('sid=;');
+                    assert.equal(sess, true);
+
+                }
+                catch (e) {
+                    let sess = res.headers["set-cookie"] === undefined;
+                    assert.equal(sess, true);
+                }
+                x = await mock.teardown_admin();
+
+                done()
+            });
+    });
 });

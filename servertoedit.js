@@ -310,10 +310,10 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
                         })
                 }
             });
-            setTimeout(function () {
-                response.redirect('/shop')
-            }, 3000);
         }
+        setTimeout(function () {
+            response.redirect('/shop')
+        }, 1500);
     })
 });
 
@@ -511,7 +511,7 @@ app.post('/checkout', (req,res)=>{
     });
     setTimeout(function () {
         res.redirect('/my_cart');
-    }, 3000);
+    }, 1500);
 });
 
 app.listen(PORT, () => {

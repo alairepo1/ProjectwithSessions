@@ -54,20 +54,7 @@ const teardown_admin = () => {
             console.log(err);
         }
         else {
-            console.log("Connected to db");
-
-
-            db.collection('Accounts').remove({email: "T3STER2@AJZSHOE.COM"}, function (err, data) {
-
-                if (err) {
-                    throw(err);
-                }
-                else {
-                    console.log("Test Ended Database cleared");
-                    client.close();
-                }
-
-            })
+            db.collection('Accounts').remove({email: "T3STER2@AJZSHOE.COM"})
         }
 
     })
@@ -98,10 +85,24 @@ const revert_price = () => {
 
 };
 
+const check_out = (sess_id) => {
+    MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
+        const db = client.db('projectdb');
+
+        db.collection('Accounts').findOne({email: sess_id}, (err, doc)=>{
+            assert.equal(doc.cart.length,0);
+            assert.equal(doc.history.length,1);
+        });
+
+        client.close()
+    });
+};
+
 module.exports = {
     checkcart,
     teardown,
     revert_price,
     teardown_admin,
-    check_update
+    check_update,
+    check_out
 };

@@ -7,28 +7,35 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <div>
+        <div class="row">
+            <div class="col align-self-start">
+                <div class="modal-body">
 
-        <form action="/login" method="post" id="loginForm">
-            <label>E-mail:</label><br> <input id="email" name="email" type="email" size="20" required><br>
-            <label>Password:</label><br> <input id="pwd" name="pwd" type="password" size="20" required><br>
-            <br>
-            <a data-dismiss="modal" aria-label="Close" data-toggle="modal" href="#exampleModal">Don't have an account yet?</a>
+                        <form action="/login" method="post" id="loginForm">
+                            <label>E-mail:</label><br> <input id="email" name="email" type="email" size="20" required><br>
+                            <label>Password:</label><br> <input id="pwd" name="pwd" type="password" size="20" required><br>
+                            <br>
+                            <a data-dismiss="modal" aria-label="Close" data-toggle="modal" href="#exampleModal">Don't have an account yet?</a>
+                        </form>
+
+                </div>
+            </div>
+            <!--Login message is hidden, displays error for login-->
+            <div class="col align-self-center">
+                <div id="loginalert" class="alert alert-warning alert-dismissible fade show col-md-10 p-1" role="alert">
+                    {{login_message}}
+                </div>
+            </div>
+        </div>
+        <div class="row-2">
             <div class="modal-footer">
-			<div class='container'>
-					{{>loginalert}}
-			</div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <input value="Login" type="submit" form="loginForm" class="btn btn-primary">
             </div>
-        </form>
-    </div>
-      </div>
-      <!--<div class="modal-footer">-->
-        <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-        <!--<button type="submit" form="loginForm" class="btn btn-primary">Login</button>-->
-      <!--</div>-->
+        </div>
+
+
+
     </div>
   </div>
 </div>

@@ -27,8 +27,11 @@
                         </div>
                     </div>
                 </div>
+                <!--Login message is hidden, displays error for admin sign up-->
                 <div class="col align-self-center">
-                        {{>adminalert}}
+                    <div id="adminalert" class="alert alert-warning alert-dismissible fade show col-md-10 p-1 text-center" role="alert">
+                        {{admin_message}}
+                    </div>
                 </div>
             </div>
             <div class="row-2">

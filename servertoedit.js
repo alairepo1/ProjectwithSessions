@@ -104,12 +104,14 @@ app.get('/my_cart', redirectLogin, (request, response) => {
                 cart_list.push(docs[0].cart.slice(i, i + 1));
             }
             response.render('my_cart.hbs',{
+                purchase: false,
                 products: cart_list,
                 total_price: total,
                 username: request.session.userId
             })
         } else if (docs.length === 0){
             response.render('my_cart.hbs',{
+                purchase: false,
                 username: request.session.userId
             })
         }
@@ -509,9 +511,11 @@ app.post('/checkout', (req,res)=>{
         db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
             { $set: {cart: []}})
     });
-    setTimeout(function () {
-        res.redirect('/my_cart');
-    }, 1500);
+    res.render('my_cart.hbs',{
+        purchase: true,
+        username: req.session.userId
+
+    })
 });
 
 app.listen(PORT, () => {

@@ -8,10 +8,19 @@
 </head>
 <body>
 {{>nav_bar}}
+{{#if purchase}}
+    <!--Alert on purchase: true-->
+    <div id="purchase_alert" class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        Successfully purchased!
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{{/if}}
 <br>
 {{>cart}}
 <br>
-{{>footer}}
+<!--{{>footer}}-->
 
     <div id="itemalert" class="alert alert-success alert-dismissible fade show bg-dark text-light text-center fixed-bottom border-0" role="alert">
         <a id="alert_message">Item Removed</a>

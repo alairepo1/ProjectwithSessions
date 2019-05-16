@@ -9,8 +9,11 @@
 <body>
 {{>nav_bar}}
 <br>
-{{>itemalert}}
-    <div class="wrapper text-center">
+<div id="itemalert" class="alert alert-success alert-dismissible fade show bg-dark text-light text-center fixed-bottom border-0" role="alert">
+    <p>Item Added</p>
+</div>
+
+<div class="wrapper text-center">
         <br>
         {{#if admin}}
             <a data-toggle="modal" class="btn btn-primary" href="#addModal">Add Product</a>

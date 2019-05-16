@@ -12,16 +12,16 @@ body {
     height: 100%;
 }
 
-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    height: 25px;
-    background-color: white;
-    opacity: 0.5;
-}
+/*footer {*/
+    /*position: fixed;*/
+    /*left: 0;*/
+    /*bottom: 0;*/
+    /*width: 100%;*/
+    /*text-align: center;*/
+    /*height: 25px;*/
+    /*background-color: white;*/
+    /*opacity: 0.5;*/
+/*}*/
 
 .center{
     margin: auto;

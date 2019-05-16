@@ -96,7 +96,6 @@ describe('server.js', function () {
                 try{
                     let sess = res.headers["set-cookie"][0].includes('sid=;');
                     assert.equal(sess, true);
-
                 }
                 catch (e) {
                     let sess = res.headers["set-cookie"] === undefined;

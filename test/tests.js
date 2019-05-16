@@ -1,8 +1,11 @@
 const server = require('supertest').agent("localhost:8080");
 const assert = require('chai').assert;
 const mock = require('./mock_data.js');
+
 describe('server.js', function () {
-    console.log('tests start');
+    console.log('tests start \n');
+    this.timeout(10000);
+
     it('/ endpoint should render homepage', function (done) {
         server
             .get('/')
@@ -72,32 +75,33 @@ describe('server.js', function () {
 
     });
 
-    it('adding to cart /shop should have status 200',(done)=>{
-        body = {};
-        body.email = "T3STER1@AJZSHOE.COM";
-        body.pwd = "Asdf12345";
-        body.objectid = '5cd4fb1e1c9d4400008b3f0b';
-        server
-            .post('/login')
-            .send(body)
-            .expect(200)
-            .end((err, res) => {
-                server
-                    .get('/shop')
-                    .expect(200)
-                    .end((err,res1) => {
-                        server
-                            .post('/add-to-cart')
-                            .send(body)
-                            .expect(302)
-                            .end((err, res2) => {
-                                assert.equal(res2.status, 302)
-                                done();
-                            });
-                    })
-            })
-
-    });
+    // it('adding to cart /shop should have status 200',(done)=>{
+    //     this.timeout(5000)
+    //     body = {};
+    //     body.email = "T3STER1@AJZSHOE.COM";
+    //     body.pwd = "Asdf12345";
+    //     body.objectid = '5cd4fb1e1c9d4400008b3f0b';
+    //     server
+    //         .post('/login')
+    //         .send(body)
+    //         .expect(200)
+    //         .end((err, res) => {
+    //             server
+    //                 .get('/shop')
+    //                 .expect(200)
+    //                 .end((err,res1) => {
+    //                     server
+    //                         .post('/add-to-cart')
+    //                         .send(body)
+    //                         .expect(302)
+    //                         .end((err, res2) => {
+    //                             assert.equal(res2.status, 302);
+    //                             done();
+    //                         });
+    //                 })
+    //         })
+    //
+    // });
 
     it('check add to cart /shop should have status 200', (done)=>{
         body = {};
@@ -159,6 +163,7 @@ describe('server.js', function () {
         body.email = "T3STER1@AJZSHOE.COM";
         body.pwd = "Asdf12345";
         body.objectid = '5cd4fb1e1c9d4400008b3f0b';
+
         server
             .post('/login')
             .send(body)
@@ -168,22 +173,38 @@ describe('server.js', function () {
                     console.log(error)
                 }
                 server
-                    .get('/my_cart')
+                    .get('/shop')
                     .expect(200)
                     .end((err, res)=>{
                         server
-                            .post('/checkout')
+                            .post('/add-to-cart')
                             .expect(302)
+                            .send(body)
                             .end((e,r)=>{
-
-                                mock.check_out();
-                                done()
+                                server
+                                    .get('/my_cart')
+                                    .expect(200)
+                                    .end((E,R)=>{
+                                        server
+                                            .post('/checkout')
+                                            .expect(302)
+                                            .end((ERR,RES)=>{
+                                                if (ERR){
+                                                    console.log(ERR)
+                                                }
+                                                mock.checkout();
+                                                mock.check_history();
+                                                done();
+                                            })
+                                    })
                             })
+
                     })
             })
     });
 
     it("/logout should clear the cookie", (done) => {
+        this.timeout(10000);
         server
             .get('/logout')
             .expect(200)

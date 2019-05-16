@@ -85,12 +85,26 @@ const revert_price = () => {
 
 };
 
-const check_out = (sess_id) => {
+const checkout = () => {
+    x = null;
+
     MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
         const db = client.db('projectdb');
 
-        db.collection('Accounts').findOne({email: sess_id}, (err, doc)=>{
-            assert.equal(doc.cart.length,0);
+        db.collection('Accounts').findOne({email: "T3STER1@AJZSHOE.COM"}, (err, doc)=>{
+            // assert.equal(doc.cart.length,0);
+            x = doc.cart.length
+        });
+        client.close();
+        return x
+    });
+};
+
+const check_history = () => {
+    MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
+        const db = client.db('projectdb');
+
+        db.collection('Accounts').findOne({email: "T3STER1@AJZSHOE.COM"}, (err, doc)=>{
             assert.equal(doc.history.length,1);
         });
 
@@ -104,5 +118,6 @@ module.exports = {
     revert_price,
     teardown_admin,
     check_update,
-    check_out
+    checkout,
+    check_history
 };

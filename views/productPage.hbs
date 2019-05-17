@@ -99,7 +99,7 @@
             </aside>
             <aside class="col-sm-7">
                 <article class="card-body p-5">
-                    <h3 class="title mb-3">Nike Air Force 1 Low</h3>
+                    <h3 class="title mb-3">{{product.name}}</h3>
 
                     <p class="price-detail-wrap">
 	<span class="price h3 text-secondary">
@@ -151,7 +151,7 @@
                                 <dl class="param param-inline">
                                     <dt>Quantity:</dt>
                                     <dd class="w-50">
-                                        <input class="form-control input-sm w-100" name="quantity" type="number" step="1" min="1" max="99">
+                                        <input class="form-control input-sm w-100" name="quantity" type="number" step="1" min="1" max="99" value="1">
                                     </dd>
                                 </dl>  <!-- item-property .// -->
                             </div> <!-- col.// -->
@@ -173,7 +173,8 @@
 
 
 </div>
-
+{{>scripts}}
+<script src="../scripts/scripts.js"></script>
 
 </body>
 </html>

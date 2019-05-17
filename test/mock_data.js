@@ -51,17 +51,7 @@ const teardownadmin = () => {
             console.log("Connected to db");
 
 
-            db.collection('Accounts').remove({email: "T3STER1ADMIN@AJZSHOE.COM"}, function (err, data) {
-
-                if (err) {
-                    throw(err);
-                }
-                else {
-                    console.log("Test Ended Database cleared");
-                }
-
-            });
-            db.collection('Shoes').remove({name: "JordanAdmintest"}, function (err, data) {
+            db.collection('Accounts').remove({email: "T3STER2@AJZSHOE.COM"}, function (err, data) {
 
                 if (err) {
                     throw(err);
@@ -71,11 +61,12 @@ const teardownadmin = () => {
                     client.close();
                 }
 
-            })
+            });
         }
 
     })
 };
+
 
 const setupShoe = () => {
     MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
@@ -97,6 +88,30 @@ const setupShoe = () => {
     });
 };
 
+
+const checkout = () => {
+
+    MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
+        const db = client.db('projectdb');
+
+        db.collection('Accounts').findOne({email: "T3STER1@AJZSHOE.COM"}, (err, doc)=>{
+            assert.equal(doc.cart.length,0);
+        });
+        client.close();
+    });
+};
+
+const check_history = () => {
+    MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
+        const db = client.db('projectdb');
+
+        db.collection('Accounts').findOne({email: "T3STER1@AJZSHOE.COM"}, (err, doc) => {
+            assert.equal(doc.history.length, 1);
+        });
+
+        client.close()
+    })
+};
 
 const checkcart = () => {
     MongoClient.connect('mongodb+srv://admin:mongodb@agileproject-qha9t.mongodb.net/projectdb?retryWrites=true',function(err,client) {
@@ -138,6 +153,8 @@ module.exports = {
     checkcart,
     teardown,
     teardownadmin,
-    emptycheckcart,
-    setupShoe
+    checkout,
+    check_history,
+    setupShoe,
+    emptycheckcart
 };

@@ -167,6 +167,7 @@ app.get('/home', redirectLogin, (req, res) => {
 
 app.post('/login', redirectHome, (req, res) => {
     var db = utils.getDb();
+    var date = new Date();
     db.collection('Accounts').find({email: `${req.body.email}`}).toArray().then(function (feedbacks) {
         if (feedbacks.length === 0) {
             res.location('/');
@@ -177,8 +178,11 @@ app.post('/login', redirectHome, (req, res) => {
         } else {
             if(bcryptjs.compareSync(req.body.pwd, feedbacks[0].pwd)) {
                 req.session.userId = feedbacks[0].email;
-                // console.log(`${req.session.userId} logged in`);
-                return res.redirect('/home')
+
+                db.collection('userLogs').insertOne({
+                    userLog: `${req.body.email} logged in at ${date} Success`
+                });
+                res.redirect('/home')
 
             }else{
                 res.render('homenotlog.hbs', {
@@ -229,6 +233,13 @@ app.post('/register', redirectHome, (req, res) => {
 
 
 app.get('/logout', redirectLogin, (req, res) => {
+    var db = utils.getDb();
+    var date = new Date();
+
+    db.collection('userLogs').insertOne({
+            userLog: `${req.body.email} logged out at ${date} Success`
+        });
+
     req.session.destroy(err => {
         if (err) {
             return res.redirect('/')
@@ -335,6 +346,7 @@ app.post('/delete-item', redirectLogin, (request, response)=> {
 });
 
 app.post("/addProduct", (req, res) => {
+    var date = new Date();
     utils.getDb().collection("Accounts").findOne({email: req.session.userId}, (err, result) => {
         if (result.isAdmin) {
             let name = req.body.name;
@@ -354,10 +366,12 @@ app.post("/addProduct", (req, res) => {
                 }, function (err, result1) {
                     if (err)
                         console.log(err);
-                    else
-                        setTimeout(function () {
-                            res.redirect("/shop");
-                        }, 2000);
+                    else {
+                        utils.getDb().collection('adminLogs').insertOne({
+                            adminLog: `${req.session.userId} added product id: ${req.params.id} at ${date} Success`
+                        });
+                        res.redirect("/shop");
+                    }
                 });
 
         } else
@@ -367,7 +381,7 @@ app.post("/addProduct", (req, res) => {
 
 app.get("/db", (req, res) => {
 
-    utils.getDb().collection("Accounts").find().toArray((err, result) => {
+    utils.getDb().collection("userLogs").find().toArray((err, result) => {
         console.log(result)
     });
     res.redirect("/")
@@ -447,8 +461,23 @@ app.get("/db", (req, res) => {
     res.redirect("/")
 });
 
+app.get("/db/admin", (req, res) => {
+    utils.getDb().collection("adminLogs").find().toArray((err, result) => {
+        console.log(result)
+    });
+    res.redirect("/")
+});
+
+app.get("/db/user", (req, res) => {
+    utils.getDb().collection("userLogs").find().toArray((err, result) => {
+        console.log(result)
+    });
+    res.redirect("/")
+});
+
 app.post("/updateProduct/:id", (req, res) => {
     let db = utils.getDb();
+    var date = new Date()
     db.collection('Shoes').updateOne({_id: ObjectId(req.params.id)}, {
         $set: {
             path: req.body.image,
@@ -461,18 +490,29 @@ app.post("/updateProduct/:id", (req, res) => {
     }, function (err, result) {
         if(err)
             console.log(err);
-        else
+        else {
+            db.collection('adminLogs').insertOne({
+                adminLog: `${req.session.userId} updated product ID: ${req.params.id} at ${date} Success`
+
+            });
             res.redirect('/shop')
+        }
     })
 });
 
 app.post('/deleteProduct/:id', (req, res) => {
     var db = utils.getDb();
+    var date = new Date();
     db.collection('Shoes').findOneAndDelete({_id: ObjectId(req.params.id)}, function (err, result) {
         if (err)
             console.log(err);
-        else
+        else {
+            db.collection('adminLogs').insertOne({
+                adminLog: `${req.session.userId} deleted product id: ${req.params.id} at ${date} Success`
+            });
+
             res.redirect("/shop")
+        }
     })
 });
 
@@ -494,6 +534,36 @@ app.get("/product/:id", (req, res) => {
                     })
                 }
             });
+        }
+    })
+});
+
+app.get('/admin-logs', (req, res) => {
+    let db = utils.getDb();
+    db.collection('adminLogs').find({}, function (err, result) {
+        if (err)
+            console.log(err);
+        else{
+            res.render('logs.hbs', {
+                adminLogs: result,
+                username: req.session.userId,
+                admin: result.isAdmin
+            })
+        }
+    })
+});
+
+app.get('/user-logs', (req, res) => {
+    let db = utils.getDb();
+    db.collection('userLogs').find({}, function (err, result) {
+        if (err)
+            console.log(err);
+        else{
+            res.render('logs.hbs', {
+                userLogs: result,
+                username: req.session.userId,
+                admin: result.isAdmin
+            })
         }
     })
 });

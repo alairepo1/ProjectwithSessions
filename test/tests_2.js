@@ -1,8 +1,9 @@
-const server = require('supertest').agent("localhost:8080");
-// const server = require('supertest').agent("https://glacial-retreat-42071.herokuapp.com");
+// const server = require('supertest').agent("localhost:8080");
+const server = require('supertest').agent("https://glacial-retreat-42071.herokuapp.com");
 const assert = require('chai').assert;
 const mock = require('../test/mock_data.js');
 const ObjectId = require('mongodb').ObjectID;
+
 
 describe('server.js', function () {
     console.log('tests_2 start');

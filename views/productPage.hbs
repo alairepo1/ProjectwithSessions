@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
+
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./css/stylesheet.css">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
     <title>Product Page</title>
 
     <style>
@@ -81,6 +82,12 @@
 {{>nav_bar}}
 
 <br>
+<div id="itemalert" class="alert alert-success alert-dismissible fade show bg-dark text-light text-center fixed-bottom border-0" role="alert">
+    <p>Item Added</p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 
 <div class="container">
 
@@ -151,7 +158,7 @@
                                 <dl class="param param-inline">
                                     <dt>Quantity:</dt>
                                     <dd class="w-50">
-                                        <input class="form-control input-sm w-100" name="quantity" type="number" step="1" min="1" max="99">
+                                        <input class="form-control input-sm w-100" name="quantity" type="number" step="1" min="1" max="99" value="1">
                                     </dd>
                                 </dl>  <!-- item-property .// -->
                             </div> <!-- col.// -->
@@ -173,6 +180,7 @@
 
 
 </div>
+{{>scripts}}
 
 
 </body>

@@ -262,7 +262,7 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
     var db = utils.getDb();
     var userID = request.session.userId;
     var productId = request.body.objectid;
-    let quantity = request.body.quantity || 1;
+    let quantity = Number(request.body.quantity);
 
     db.collection('Shoes').findOne( { _id : ObjectId(productId) }, (err, doc) => {
         if (err) {
@@ -298,7 +298,7 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
                     db.collection('Accounts').updateOne({"email": request.session.userId, "cart.item_id": doc._id},
                         {
                             $inc: {
-                                "cart.$.quantity": quantity
+                                "cart.$.quantity": +quantity
                             }
                         })
                 }

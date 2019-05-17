@@ -29,6 +29,25 @@ const {
 } = process.env;
 
 
+const sortLogs = (a, b) => {
+    let dateA = undefined;
+    let dateB = undefined;
+    if (a.hasOwnProperty("userLog")) {
+        dateA = Date.parse(a.userLog.time);
+        dateB = Date.parse(b.userLog.time);
+    }
+    else if (a.hasOwnProperty("adminLog")) {
+        dateA = Date.parse(a.adminLog.time);
+        dateB = Date.parse(b.adminLog.time);
+    }
+    let value = 0;
+    if(dateA > dateB){
+        value = -1;
+    } else if (dateA < dateB) {
+        value = 1;
+    }
+    return value
+};
 
 const IN_PROD = NODE_ENV === 'production';
 
@@ -167,10 +186,13 @@ app.get('/home', redirectLogin, (req, res) => {
 
 app.post('/login', redirectHome, (req, res) => {
     var db = utils.getDb();
-    var date = new Date();
     db.collection('Accounts').find({email: `${req.body.email}`}).toArray().then(function (feedbacks) {
         if (feedbacks.length === 0) {
             res.location('/');
+
+            db.collection('userLogs').insertOne({
+                userLog: {time: (new Date).toString(), email: req.body.email, action: "Login", status: "Failed account does not exist."},
+            });
             res.render('homenotlog.hbs', {
                 error: true,
                 login_message: "Account does not exist"
@@ -180,11 +202,14 @@ app.post('/login', redirectHome, (req, res) => {
                 req.session.userId = feedbacks[0].email;
 
                 db.collection('userLogs').insertOne({
-                    userLog: `${req.body.email} logged in at ${date} Success`
+                    userLog: {time: (new Date).toString(), email: req.body.email, action: "Login", status: "Success"},
                 });
                 res.redirect('/home')
 
             }else{
+                db.collection('userLogs').insertOne({
+                    userLog: {time: (new Date).toString(), email: req.body.email, action: "Login", status: "Failed wrong password"},
+                });
                 res.render('homenotlog.hbs', {
                     error: true,
                     login_message: "Incorrect password, try again"
@@ -222,6 +247,9 @@ app.post('/register', redirectHome, (req, res) => {
                 })
             }
         } else {
+            db.collection('userLogs').insertOne({
+                userLog: {time: (new Date).toString(), email: req.body.email, action: "Register", status: "Failed Account already exists."},
+            });
             res.render('homenotlog.hbs',{
                 signup_error: true,
                 signup_message : "Account name already exists"
@@ -234,11 +262,10 @@ app.post('/register', redirectHome, (req, res) => {
 
 app.get('/logout', redirectLogin, (req, res) => {
     var db = utils.getDb();
-    var date = new Date();
 
     db.collection('userLogs').insertOne({
-            userLog: `${req.body.email} logged out at ${date} Success`
-        });
+        userLog: {time: (new Date).toString(), email: req.session.userId, action: "Logout", status: "Success"},
+    });
 
     req.session.destroy(err => {
         if (err) {
@@ -341,12 +368,11 @@ app.post('/delete-item', redirectLogin, (request, response)=> {
             }
         }
 
-            response.redirect('/my_cart');
+        response.redirect('/my_cart');
     });
 });
 
 app.post("/addProduct", (req, res) => {
-    var date = new Date();
     utils.getDb().collection("Accounts").findOne({email: req.session.userId}, (err, result) => {
         if (result.isAdmin) {
             let name = req.body.name;
@@ -368,12 +394,11 @@ app.post("/addProduct", (req, res) => {
                         console.log(err);
                     else {
                         utils.getDb().collection('adminLogs').insertOne({
-                            adminLog: `${req.session.userId} added product id: ${req.params.id} at ${date} Success`
+                            adminLog: {time: (new Date).toString(), email: req.session.userId, action: `Added ${type} ${name}`, status: "Success"}
                         });
                         res.redirect("/shop");
                     }
                 });
-
         } else
             res.redirect("/");
     });
@@ -381,7 +406,7 @@ app.post("/addProduct", (req, res) => {
 
 app.get("/db", (req, res) => {
 
-    utils.getDb().collection("userLogs").find().toArray((err, result) => {
+    utils.getDb().collection("Accounts").find().toArray((err, result) => {
         console.log(result)
     });
     res.redirect("/")
@@ -423,36 +448,7 @@ app.post('/registerAdmin', (req, res) => {
     })
 });
 
-app.post("/addProduct", (req, res) => {
-    utils.getDb().collection("Accounts").findOne({email: req.session.userId}, (err, result) => {
-        if (result.isAdmin) {
-            let name = req.body.name;
-            let type = req.body.type;
-            let color = req.body.color;
-            let price = req.body.price;
-            let image = req.body.image;
-            let description = req.body.description;
 
-            utils.getDb().collection("Shoes").insertOne(
-                {
-                    name: name,
-                    type: type,
-                    color: color,
-                    price: price,
-                    path: image,
-                    description: description
-
-                }, function (err, result1) {
-                    if (err)
-                        console.log(err);
-                    else
-                        res.redirect('/shop');
-                });
-
-        } else
-            res.redirect("/");
-    });
-});
 
 app.get("/db", (req, res) => {
     utils.getDb().collection("Shoes").find().toArray((err, result) => {
@@ -477,7 +473,6 @@ app.get("/db/user", (req, res) => {
 
 app.post("/updateProduct/:id", (req, res) => {
     let db = utils.getDb();
-    var date = new Date()
     db.collection('Shoes').updateOne({_id: ObjectId(req.params.id)}, {
         $set: {
             path: req.body.image,
@@ -492,7 +487,7 @@ app.post("/updateProduct/:id", (req, res) => {
             console.log(err);
         else {
             db.collection('adminLogs').insertOne({
-                adminLog: `${req.session.userId} updated product ID: ${req.params.id} at ${date} Success`
+                adminLog: {time: (new Date).toString(), email: req.session.userId, action: `updated ${req.body.type} ${req.body.name}`, status: "Success"}
 
             });
             res.redirect('/shop')
@@ -500,20 +495,17 @@ app.post("/updateProduct/:id", (req, res) => {
     })
 });
 
-app.post('/deleteProduct/:id', (req, res) => {
+app.post('/deleteProduct/:id', async (req, res) => {
     var db = utils.getDb();
     var date = new Date();
-    db.collection('Shoes').findOneAndDelete({_id: ObjectId(req.params.id)}, function (err, result) {
-        if (err)
-            console.log(err);
-        else {
-            db.collection('adminLogs').insertOne({
-                adminLog: `${req.session.userId} deleted product id: ${req.params.id} at ${date} Success`
-            });
 
-            res.redirect("/shop")
-        }
-    })
+    let result = await db.collection('Shoes').find({_id: ObjectId(req.params.id)}).toArray();
+    await db.collection('adminLogs').insertOne({
+        adminLog: {time: (new Date).toString(), email: req.session.userId, action: `deleted ${result[0].type} ${result[0].name}`, status: "Success"}
+    });
+    await db.collection('Shoes').findOneAndDelete({_id: ObjectId(req.params.id)});
+    res.redirect("/shop")
+
 });
 
 app.get("/product/:id", (req, res) => {
@@ -538,31 +530,37 @@ app.get("/product/:id", (req, res) => {
     })
 });
 
-app.get('/admin-logs', (req, res) => {
+app.get('/logs', (req, res) => {
     let db = utils.getDb();
-    db.collection('adminLogs').find({}, function (err, result) {
+    db.collection('Accounts').findOne({email:req.session.userId}, function (err, result4) {
+        if (err)
+            console.log(err);
+        if(!result4.isAdmin)
+            return res.redirect('/')
+    });
+    db.collection('userLogs').find({}).toArray(function (err, result) {
         if (err)
             console.log(err);
         else{
-            res.render('logs.hbs', {
-                adminLogs: result,
-                username: req.session.userId,
-                admin: result.isAdmin
-            })
-        }
-    })
-});
-
-app.get('/user-logs', (req, res) => {
-    let db = utils.getDb();
-    db.collection('userLogs').find({}, function (err, result) {
-        if (err)
-            console.log(err);
-        else{
-            res.render('logs.hbs', {
-                userLogs: result,
-                username: req.session.userId,
-                admin: result.isAdmin
+            db.collection('adminLogs').find({}).toArray(function (err, result1) {
+                if (err)
+                    console.log(err);
+                else{
+                    db.collection('Accounts').findOne({email:req.session.userId}, function (err, result3) {
+                        if (err)
+                            console.log(err);
+                        else{
+                            result.sort(sortLogs);
+                            result1.sort(sortLogs);
+                            res.render('logs.hbs', {
+                                userLogs: result,
+                                adminLogs: result1,
+                                username: req.session.userId,
+                                admin: result3.isAdmin
+                            })
+                        }
+                    })
+                }
             })
         }
     })
@@ -589,9 +587,9 @@ app.post('/checkout', (req,res)=>{
     });
     setTimeout(function () {
         res.render('my_cart.hbs',{
-        purchase: true,
-        username: req.session.userId
-    })
+            purchase: true,
+            username: req.session.userId
+        })
     }, 3000);
 });
 

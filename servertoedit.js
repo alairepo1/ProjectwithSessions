@@ -250,6 +250,7 @@ app.post('/register', redirectHome, (req, res) => {
                 db.collection('Accounts').insertOne({
                     email: req.body.email,
                     pwd: bcryptjs.hashSync(req.body.pwd, salt),
+                    isAdmin: false,
                     cart: [],
                     history: [],
                     colorMode: 'normal'
@@ -263,6 +264,9 @@ app.post('/register', redirectHome, (req, res) => {
                 })
             }
         } else {
+            db.collection('userLogs').insertOne({
+                userLog: {time: (new Date).toString(), email: req.body.email, action: "Register", status: "Failed Account already exists."},
+            });
             res.render('homenotlog.hbs',{
                 signup_error: true,
                 signup_message : "Account name already exists"
@@ -612,6 +616,7 @@ app.get('/logs', (req, res) => {
         }
     })
 });
+
 
 // Checkout Start
 app.post('/checkout', (req,res)=>{

@@ -138,21 +138,16 @@ footer {
 
 }
 
-#loginalert {
-    display: none;
-    position: absolute;
+#adminalert{
+    display:none
 }
 
-
-#signupalert {
-    display: none;
-    position: absolute;
+#loginalert{
+    display:none
 }
 
-#adminalert {
-    display: none;
-    position: absolute;
-
+#signupalert{
+    display:none
 }
 
 #itemalert {

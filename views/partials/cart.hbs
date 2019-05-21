@@ -15,7 +15,7 @@
                                 <p class="card-text">Price: ${{price}}</p>
                                 <p class="card-text">Quantity: {{quantity}}</p>
                                 <form action="/delete-item" method="post">
-                                    <input type="number" min="1" id="remove_num" name="remove_num" value="1">
+                                    <input type="number" min="1" id="remove_num" name="remove_num" value="1" max="{{this.quantity}}">
                                     <input type="submit" name="{{name}}" class="btn btn-secondary-custom" value="Remove" onclick="itemremoved()">
                                     <input type="hidden" value="{{item_id}}" name="item_id">
                                 </form>

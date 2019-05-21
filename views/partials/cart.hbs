@@ -1,38 +1,39 @@
-    {{# each products}}
-        <div class="container">
-            <div class="row">
-                {{# each this}}
-                    <div class="col">
-                        <!--Card 1 -->
-                        <div class="card cardcontainer">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-10">
-                                        <h5 id="item_name" class="card-title">{{this.name}}</h5>
-                                        <p class="card-text">Price: ${{this.price}}</p>
-                                        <p class="card-text">Quantity: {{this.quantity}}</p>
-                                        <form onsubmit="return confirm('Are you sure you want to delete??')" action="/delete-item" method="post">
-                                            <input type="number" min="1" max="{{this.quantity}}" id="remove_num" name="remove_num" value="1">
-                                            <input type="submit" name="{{this.name}}" class="btn btn-primary" value="Remove">
-                                            <input type="hidden" value="{{this.item_id}}" name="item_id">
-                                        </form>
-                                    </div>
-                                    <div class="col-2 ml-auto">
-                                        <img class="card-img-top ml-auto" src="{{this.path}}" alt="Card image cap">
-                                    </div>
-                                </div>
+{{# each products}}
+    <div class="container">
+        <div class="row">
+            {{# each this}}
+            <div class="col">
+                <!--Card 1 -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-10">
+                                <h5 class="card-title">{{name}}</h5>
+                                <p class="card-text">Price: ${{price}}</p>
+                                <p class="card-text">Quantity: {{quantity}}</p>
+                                <form action="/delete-item" method="post">
+                                    <input type="number" min="1" id="remove_num" name="remove_num" value="1">
+                                    <input type="submit" name="{{name}}" class="btn btn-secondary-custom" value="Remove" onclick="itemremoved()">
+                                    <input type="hidden" value="{{item_id}}" name="item_id">
+                                </form>
+                            </div>
+                            <div class="col-2 ml-auto">
+                                <img class="card-img-bottom ml-auto" src="{{path}}" alt="Card image cap">
+
                             </div>
                         </div>
-                        <!--Card 1 end-->
                     </div>
-                {{/each}}
-            </div>
+                    <!--Card 1 end-->
+                </div>
+            {{/each}}
         </div>
+        </div>
+    </div>
         <br>
-    {{/each}}
+{{/each}}
 
     <!--For Deliverable 3-->
-    {{# if products}}
+{{# if products}}
         <div class="container pb-5">
             <div class="card">
                 <div class="card-body">
@@ -46,6 +47,5 @@
                 </div>
             </div>
         </div>
-    {{/if}}
-
+{{/if}}
 

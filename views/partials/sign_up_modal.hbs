@@ -7,27 +7,36 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <div>
+        <div class="row">
+            <div class="col align-self-start">
+                <div class="modal-body">
+                    <div>
 
-        <form action="/register" method="post" id="signupForm">
-            <label>E-mail:</label><br> <input id="email" name="email" minlength="5" maxlength="30" type="email" size="30" required><br>
-            <label>Password:</label><br> <input id="pwd" name="pwd" type="password" size="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"  required><br>
-            <label>Enter Password Again:</label><br> <input id="pwd2" name="pwd2" type="password" size="20" required><br>
-            <br>
-            <div class="alertcontainer">
-                {{> signupalert}}
+                        <form action="/register" method="post" id="signupForm">
+                            <label>E-mail:</label><br> <input id="email" name="email" minlength="5" maxlength="30" type="email" size="30" required><br>
+                            <label>Password:</label><br> <input id="pwd" name="pwd" type="password" size="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"  required><br>
+                            <label>Enter Password Again:</label><br> <input id="pwd2" name="pwd2" type="password" size="20" required><br>
+                            <br>
+                        </form>
+                    </div>
+                </div>
             </div>
+            <!--Login message is hidden, displays error for sign up-->
+            <div class="col align-self-center">
+                <div class="alertcontainer">
+                    <div id="signupalert" class="alert alert-warning alert-dismissible fade show col-md-10 p-1" role="alert">
+                        {{signup_message}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row-2">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" form="signupForm" class="btn btn-primary">Create Account</button>
+            </div>
+        </div>
 
-        </form>
-		
-		
-    </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" form="signupForm" class="btn btn-primary">Create Account</button>
-      </div>
     </div>
   </div>
 </div>

@@ -16,14 +16,22 @@
                     <!--Drop down items-->
                     <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/logout">Logout</a>
+                        <form action="/changecolor/normal" method="post" id="normalform">
+                            <button class="dropdown-item" type="submit" form="normalform">Normal Mode</button>
+                        </form>
+
+                        <form action="/changecolor/night" method="post" id="nightform">
+                            <button class="dropdown-item" type="submit" form="nightform">Night Mode</button>
+                        </form>
+
                     </div>
+
                     <!--Drop down items end-->
                 </li>
             {{else}}
                 <a data-toggle="modal" class="nav-item nav-link " href="#loginModal">Log In</a>
                 <a data-toggle="modal" class="nav-item nav-link " href="#exampleModal">Sign Up</a>
                 <a data-toggle="modal" class="nav-item nav-link" href="#adminModal">Admin Sign Up</a>
-
             {{/if}}
         </div>
     </div>
@@ -32,4 +40,5 @@
 {{>admin_sign_up_modal}}
 {{>sign_up_modal}}
 {{>login_modal}}
+
 

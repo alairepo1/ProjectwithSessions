@@ -29,6 +29,25 @@ const {
 } = process.env;
 
 
+const sortLogs = (a, b) => {
+    let dateA = undefined;
+    let dateB = undefined;
+    if (a.hasOwnProperty("userLog")) {
+        dateA = Date.parse(a.userLog.time);
+        dateB = Date.parse(b.userLog.time);
+    }
+    else if (a.hasOwnProperty("adminLog")) {
+        dateA = Date.parse(a.adminLog.time);
+        dateB = Date.parse(b.adminLog.time);
+    }
+    let value = 0;
+    if(dateA > dateB){
+        value = -1;
+    } else if (dateA < dateB) {
+        value = 1;
+    }
+    return value
+};
 
 const IN_PROD = NODE_ENV === 'production';
 
@@ -82,8 +101,8 @@ const redirectHome = (req, res, next) => {
     }
 };
 
-
-
+//
+//My cart start
 app.get('/my_cart', redirectLogin, (request, response) => {
     var db = utils.getDb();
 
@@ -93,31 +112,24 @@ app.get('/my_cart', redirectLogin, (request, response) => {
                 error: "Cannot connect to database"
             })
         }
-
-        if (docs.length > 0 ){
-            var cart_list = [];
-            var total = 0;
-            for (var i = 0; i < docs[0].cart.length; i+=1){
-                total = total + (docs[0].cart[i].price * docs[0].cart[i].quantity)
-            }
-            for (var i = 0; i < docs[0].cart.length; i+= 1) {
-                cart_list.push(docs[0].cart.slice(i, i + 1));
-            }
-            response.render('my_cart.hbs',{
-                purchase: false,
-                products: cart_list,
-                total_price: total,
-                username: request.session.userId
-            })
-        } else if (docs.length === 0){
-            response.render('my_cart.hbs',{
-                purchase: false,
-                username: request.session.userId
-            })
+        var cart_list = [];
+        var total = 0;
+        for (var i = 0; i < docs[0].cart.length; i+=1){
+            total = total + (docs[0].cart[i].price * docs[0].cart[i].quantity)
         }
-
+        for (var i = 0; i < docs[0].cart.length; i+= 1) {
+            cart_list.push(docs[0].cart.slice(i, i + 1));
+        }
+        response.render('my_cart.hbs',{
+            products: cart_list,
+            total_price: total,
+            username: request.session.userId,
+            colorMode: docs[0].colorMode
+        })
     });
 });
+//My cart End
+//
 
 //
 //Shop page
@@ -131,16 +143,22 @@ app.get('/shop', redirectLogin, (request, response) => {
             response.render('404.hbs', { error: "Unable to connect to database" })
         }
         if (!docs){
+            throw err;
         }
+        //console.log(productChunks);
         db.collection("Accounts").findOne({email: request.session.userId}, (err, result) => {
             response.render('shop.hbs',{
                 itemerror: false,
                 admin: result.isAdmin,
                 products: docs,
-                username: request.session.userId
+                username: request.session.userId,
+                colorMode: result.colorMode,
+
             })
 
         });
+
+
 
     });
 });
@@ -166,19 +184,30 @@ app.get('/',(req, res) => {
 
 });
 
-
+//Render Home page
 app.get('/home', redirectLogin, (req, res) => {
-    // const { user } = res.locals;
-    res.render('home.hbs', {
-        username: req.session.userId
+    var db = utils.getDb();
+
+    db.collection('Accounts').findOne({email: `${req.session.userId}`}, (err, doc) => {
+        res.render('home.hbs', {
+            username: req.session.userId,
+            colorMode: doc.colorMode
+        })
+
     })
 });
+//Render home page end
+
 
 app.post('/login', redirectHome, (req, res) => {
     var db = utils.getDb();
     db.collection('Accounts').find({email: `${req.body.email}`}).toArray().then(function (feedbacks) {
         if (feedbacks.length === 0) {
             res.location('/');
+
+            db.collection('userLogs').insertOne({
+                userLog: {time: (new Date).toString(), email: req.body.email, action: "Login", status: "Failed account does not exist."},
+            });
             res.render('homenotlog.hbs', {
                 error: true,
                 login_message: "Account does not exist"
@@ -186,10 +215,16 @@ app.post('/login', redirectHome, (req, res) => {
         } else {
             if(bcryptjs.compareSync(req.body.pwd, feedbacks[0].pwd)) {
                 req.session.userId = feedbacks[0].email;
-                // console.log(`${req.session.userId} logged in`);
-                return res.redirect('/home')
+
+                db.collection('userLogs').insertOne({
+                    userLog: {time: (new Date).toString(), email: req.body.email, action: "Login", status: "Success"},
+                });
+                res.redirect('/home')
 
             }else{
+                db.collection('userLogs').insertOne({
+                    userLog: {time: (new Date).toString(), email: req.body.email, action: "Login", status: "Failed wrong password"},
+                });
                 res.render('homenotlog.hbs', {
                     error: true,
                     login_message: "Incorrect password, try again"
@@ -199,7 +234,7 @@ app.post('/login', redirectHome, (req, res) => {
     });
 });
 
-
+//Register Start
 app.post('/register', redirectHome, (req, res) => {
     var db = utils.getDb();
     db.collection('Accounts').find({email: `${req.body.email}`}).toArray().then(function (feedbacks) {
@@ -215,12 +250,12 @@ app.post('/register', redirectHome, (req, res) => {
                 db.collection('Accounts').insertOne({
                     email: req.body.email,
                     pwd: bcryptjs.hashSync(req.body.pwd, salt),
-                    isAdmin: false,
                     cart: [],
-                    history: []
+                    history: [],
+                    colorMode: 'normal'
                 });
                 req.session.userId = req.body.email;
-                return res.redirect(302,'/home')
+                return res.redirect('/home')
             }else{
                 res.render('homenotlog.hbs',{
                     signup_error: true,
@@ -235,10 +270,16 @@ app.post('/register', redirectHome, (req, res) => {
         }
     })
 });
-
+//Register end
 
 
 app.get('/logout', redirectLogin, (req, res) => {
+    var db = utils.getDb();
+
+    db.collection('userLogs').insertOne({
+        userLog: {time: (new Date).toString(), email: req.session.userId, action: "Logout", status: "Success"},
+    });
+
     req.session.destroy(err => {
         if (err) {
             return res.redirect('/')
@@ -266,9 +307,7 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
 
     db.collection('Shoes').findOne( { _id : ObjectId(productId) }, (err, doc) => {
         if (err) {
-            response.render('404.hbs',{
-                error: "Cannot connect to database"
-            })
+            throw err;
         }
         if (!doc){
             response.render('404',{
@@ -303,9 +342,7 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
                         })
                 }
             });
-            setTimeout(function () {
                 response.redirect('/shop')
-            }, 3000);
         }
     })
 });
@@ -341,13 +378,15 @@ app.post('/delete-item', redirectLogin, (request, response)=> {
                 }
             }
         }
-            response.redirect('/my_cart');
+
+        response.redirect('/my_cart');
     });
 });
 
 app.post("/addProduct", (req, res) => {
     utils.getDb().collection("Accounts").findOne({email: req.session.userId}, (err, result) => {
         if (result.isAdmin) {
+            let id = ObjectId(req.body._id);
             let name = req.body.name;
             let type = req.body.type;
             let color = req.body.color;
@@ -356,6 +395,7 @@ app.post("/addProduct", (req, res) => {
             let description = req.body.description;
             utils.getDb().collection("Shoes").insertOne(
                 {
+                    _id: id,
                     name: name,
                     type: type,
                     color: color,
@@ -365,16 +405,18 @@ app.post("/addProduct", (req, res) => {
                 }, function (err, result1) {
                     if (err)
                         console.log(err);
-                    else
-                        setTimeout(function () {
-                            res.redirect("/shop");
-                        }, 2000);
+                    else {
+                        utils.getDb().collection('adminLogs').insertOne({
+                            adminLog: {time: (new Date).toString(), email: req.session.userId, action: `Added ${type} ${name}`, status: "Success"}
+                        });
+                        res.redirect("/shop");
+                    }
                 });
-
         } else
             res.redirect("/");
     });
 });
+
 
 app.get("/db", (req, res) => {
 
@@ -420,9 +462,32 @@ app.post('/registerAdmin', (req, res) => {
     })
 });
 
+
+app.get("/db", (req, res) => {
+    utils.getDb().collection("Shoes").find().toArray((err, result) => {
+        console.log(result)
+    });
+    res.redirect("/")
+});
+
+app.get("/db/admin", (req, res) => {
+    utils.getDb().collection("adminLogs").find().toArray((err, result) => {
+        console.log(result)
+    });
+    res.redirect("/")
+});
+
+app.get("/db/user", (req, res) => {
+    utils.getDb().collection("userLogs").find().toArray((err, result) => {
+        console.log(result)
+    });
+    res.redirect("/")
+});
+
 app.post("/addProduct", (req, res) => {
     utils.getDb().collection("Accounts").findOne({email: req.session.userId}, (err, result) => {
         if (result.isAdmin) {
+            let id = ObjectId(req.body._id);
             let name = req.body.name;
             let type = req.body.type;
             let color = req.body.color;
@@ -432,6 +497,7 @@ app.post("/addProduct", (req, res) => {
 
             utils.getDb().collection("Shoes").insertOne(
                 {
+                    _id: id,
                     name: name,
                     type: type,
                     color: color,
@@ -451,13 +517,6 @@ app.post("/addProduct", (req, res) => {
     });
 });
 
-app.get("/db", (req, res) => {
-    utils.getDb().collection("Shoes").find().toArray((err, result) => {
-        console.log(result)
-    });
-    res.redirect("/")
-});
-
 app.post("/updateProduct/:id", (req, res) => {
     let db = utils.getDb();
     db.collection('Shoes').updateOne({_id: ObjectId(req.params.id)}, {
@@ -472,21 +531,28 @@ app.post("/updateProduct/:id", (req, res) => {
     }, function (err, result) {
         if(err)
             console.log(err);
-        else
+        else {
+            db.collection('adminLogs').insertOne({
+                adminLog: {time: (new Date).toString(), email: req.session.userId, action: `updated ${req.body.type} ${req.body.name}`, status: "Success"}
+
+            });
             res.redirect('/shop')
+        }
     })
 });
 
-app.post('/deleteProduct/:id', (req, res) => {
+app.post('/deleteProduct/:id', async (req, res) => {
     var db = utils.getDb();
-    db.collection('Shoes').findOneAndDelete({_id: ObjectId(req.params.id)}, function (err, result) {
-        if (err)
-            console.log(err);
-        else
-            res.redirect("/shop")
-    })
-});
+    var date = new Date();
 
+    let result = await db.collection('Shoes').find({_id: ObjectId(req.params.id)}).toArray();
+    await db.collection('adminLogs').insertOne({
+        adminLog: {time: (new Date).toString(), email: req.session.userId, action: `deleted ${result[0].type} ${result[0].name}`, status: "Success"}
+    });
+    await db.collection('Shoes').findOneAndDelete({_id: ObjectId(req.params.id)});
+    res.redirect("/shop")
+
+});
 
 app.get("/product/:id", (req, res) => {
     let db = utils.getDb();
@@ -501,7 +567,8 @@ app.get("/product/:id", (req, res) => {
                     res.render("productPage.hbs", {
                         product: result,
                         username: req.session.userId,
-                        admin: result1.isAdmin
+                        admin: result1.isAdmin,
+                        colorMode : result1.colorMode
 
                     })
                 }
@@ -510,7 +577,43 @@ app.get("/product/:id", (req, res) => {
     })
 });
 
-// Checkout method for week 3
+app.get('/logs', (req, res) => {
+    let db = utils.getDb();
+    db.collection('Accounts').findOne({email:req.session.userId}, function (err, result4) {
+        if (err)
+            console.log(err);
+        if(!result4.isAdmin)
+            return res.redirect('/')
+    });
+    db.collection('userLogs').find({}).toArray(function (err, result) {
+        if (err)
+            console.log(err);
+        else{
+            db.collection('adminLogs').find({}).toArray(function (err, result1) {
+                if (err)
+                    console.log(err);
+                else{
+                    db.collection('Accounts').findOne({email:req.session.userId}, function (err, result3) {
+                        if (err)
+                            console.log(err);
+                        else{
+                            result.sort(sortLogs);
+                            result1.sort(sortLogs);
+                            res.render('logs.hbs', {
+                                userLogs: result,
+                                adminLogs: result1,
+                                username: req.session.userId,
+                                admin: result3.isAdmin
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
+});
+
+// Checkout Start
 app.post('/checkout', (req,res)=>{
     var today = new Date();
     var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -529,12 +632,26 @@ app.post('/checkout', (req,res)=>{
         db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
             { $set: {cart: []}})
     });
-    res.render('my_cart.hbs',{
-        purchase: true,
-        username: req.session.userId
-
-    })
+    setTimeout(function () {
+        res.render('my_cart.hbs',{
+            purchase: true,
+            username: req.session.userId
+        })
+    }, 3000);
 });
+//Checkout End
+
+//Change theme Start
+app.post('/changecolor/:color',(req, res) => {
+    var db = utils.getDb();
+    var color = req.params.color;
+    //console.log('Current colour mode: ', color)
+    db.collection('Accounts').findOneAndUpdate({email: `${req.session.userId}` },
+        {$set:{colorMode:color}}
+    );
+    res.redirect('/home')
+});
+//Change theme end
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

@@ -2,12 +2,136 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script>
+    var colorMode = '{{colorMode}}';
 
-function alert(){
-    if (confirm('Remove quantity?')){
+    console.log('ColorMode: ', colorMode);
+
+
+
+    //closes the alert
+    function closealert(){
+        var alert = document.getElementById('itemalert');
+        alert.style.display = 'none'
+    };
+
+
+    function itemadded(){
         var itemalert = document.getElementById('itemalert');
         itemalert.style.display = 'inline-block';
+
+
+    };
+
+
+    //CHANGE TO DARK COLOUR
+    function changeColorDark() {
+        console.log('Change to Dark Mode');
+
+        //get the users saved value
+        colorMode = 'night';
+
+        var primaryButton = document.getElementsByClassName("btn-primary-custom");
+        var secondaryButton = document.getElementsByClassName("btn-secondary-custom");
+        var modals = document.getElementsByClassName("custommodal");
+
+        //change the css and/or colours
+        if (colorMode == 'night') {
+            document.body.style.backgroundColor = "#43464A";
+
+
+            //loops through and changes the properties for each element of array
+            //Primary Button
+            for (i = 0; i < primaryButton.length; i++){
+                primaryButton[i].style.backgroundColor = "black";
+                primaryButton[i].style.borderColor = "#00af89";
+                primaryButton[i].style.color = "white";
+            }
+            //Secondary
+            for (i = 0; i < secondaryButton.length; i++){
+                secondaryButton[i].style.backgroundColor = "white";
+                secondaryButton[i].style.borderColor = "black";
+            }
+
+            //Modals
+            for (i = 0; i < modals.length; i++){
+                modals[i].style.backgroundColor = "#43464A";
+                //modals[i].style.borderColor = "black";
+            }
+        }
+        //save the new value in the users session.
+        colorMode = 'night';
+
+        return colorMode;
     }
-}
+
+    //CHANGE TO NORMAL COLOUR
+    function changeColorNormal() {
+        console.log('Change to Normal Mode');
+        colorMode = 'normal';
+        var primaryButton = document.getElementsByClassName("btn-primary-custom");
+        var secondaryButton = document.getElementsByClassName("btn-secondary-custom");
+        var modals = document.getElementsByClassName("custommodal");
+
+        //change the css and/or colours
+        if (colorMode == 'normal') {
+            document.body.style.backgroundColor = "#f55e61";
+
+
+            //loops through and changes the properties for each element of array
+            //Primary Button
+            for (i = 0; i < primaryButton.length; i++){
+                primaryButton[i].style.backgroundColor = "#f55e61";
+                primaryButton[i].style.borderColor = "#E91E63";
+                primaryButton[i].style.color = "white";
+            }
+            //Secondary
+            for (i = 0; i < secondaryButton.length; i++){
+                secondaryButton[i].style.backgroundColor = "white";
+                secondaryButton[i].style.borderColor = "black";
+                secondaryButton[i].style.borderStyle = "none";
+
+            }
+
+            //Modals
+            for (i = 0; i < modals.length; i++){
+                modals[i].style.backgroundColor = "LavenderBlush";
+                //modals[i].style.borderColor = "black";
+            }
+        }
+        //save the new value in the users session.
+        colorMode = 'normal';
+
+        return colorMode;
+
+    }
+
+
+
+    //FUNCTION THAT DETERMINES THE CURRENT colorMode
+
+    function checkcolorMode() {
+        //console.log(colorMode);
+        //get default colormode or users saved value in session
+        if('{{colorMode}}' === 'night') {
+            changeColorDark();
+        }else {
+            changeColorNormal();
+
+        }
+
+        <!--if('{{colorMode}}' === 'normal') {-->
+            <!--changeColorNormal();-->
+        <!--}-->
+    }
+    $('document').ready(checkcolorMode());
+
+    closealert();
+
+    function itemremove(){
+        if (confirm('Remove quantity?')){
+            var itemalert = document.getElementById('itemalert');
+            itemalert.style.display = 'inline-block';
+        }
+    }
 
 </script>

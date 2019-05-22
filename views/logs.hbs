@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <title>AJZ Shoe shop</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    {{>stylesheet}}
+    <link rel="stylesheet" type="text/css" href="clientStyle.css">
+
 </head>
-<body>
+<body onload="checkcolorMode()">
 {{>nav_bar}}
 <br>
 <div class="d-flex container-fluid justify-content-center text-center">
@@ -15,20 +16,18 @@
     <button class="btn btn-outline-primary" id="adminLogsButton">Admin Logs</button>
 </div>
 <br>
-<div id="userLogs" class="container">
+<div id="userLogs" class="container list-group">
     {{#each userLogs}}
-        <div class="jumbotron jumbotron-fluid">
-            <p class="lead">{{this.userLog.action}} by {{this.userLog.email}} - ({{this.userLog.status}})</p>
-            <p class="small">Timestamp: {{this.userLog.time}}</p>
-        </div>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-light list-group-item-action">{{this.userLog.action}} by {{this.userLog.email}} - {{this.userLog.time}}  ({{this.userLog.status}})</li>
+        </ul>
     {{/each}}
 </div>
-<div id="adminLogs" class="container d-none">
+<div id="adminLogs" class="container list-group">
     {{#each adminLogs}}
-        <div class="jumbotron jumbotron-fluid">
-            <p class="lead">{{this.adminLog.action}} by {{this.adminLog.email}} - ({{this.adminLog.status}})</p>
-            <p class="small">Timestamp: {{this.adminLog.time}}</p>
-        </div>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-light list-group-item-action">{{this.adminLog.action}} by {{this.adminLog.email}} - {{this.adminLog.time}} ({{this.adminLog.status}})</li>
+        </ul>
     {{/each}}
 </div>
 {{>footer}}
@@ -53,5 +52,6 @@
         });
     })
 </script>
+{{>scripts}}
 </body>
 </html>

@@ -115,15 +115,4 @@ footer {
 
 }
 
-.img-hover-zoom {
-    overflow: hidden;
-}
-
-.img-hover-zoom img {
-    transition: transform .4s ease;
-}
-
-.img-hover-zoom:hover img {
-    transform: scale(0.8);
-}
 

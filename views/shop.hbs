@@ -16,6 +16,9 @@
         <br>
         {{#if admin}}
             <a data-toggle="modal" class="btn btn-primary" href="#addModal">Add Product</a>
+        <form method="get" action="/logs">
+            <button type="submit" class="btn btn-primary">Logs</button>
+        </form>
             {{>admin_Items}}
             {{> addProduct}}
         {{else}}

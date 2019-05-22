@@ -607,7 +607,8 @@ app.get('/logs', (req, res) => {
                                 userLogs: result,
                                 adminLogs: result1,
                                 username: req.session.userId,
-                                admin: result3.isAdmin
+                                admin: result3.isAdmin,
+                                colorMode: result3.colorMode
                             })
                         }
                     })
@@ -650,7 +651,6 @@ app.post('/checkout', (req,res)=>{
 app.post('/changecolor/:color',(req, res) => {
     var db = utils.getDb();
     var color = req.params.color;
-    //console.log('Current colour mode: ', color)
     db.collection('Accounts').findOneAndUpdate({email: `${req.session.userId}` },
         {$set:{colorMode:color}}
     );

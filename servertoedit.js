@@ -637,7 +637,7 @@ app.post('/checkout', (req,res)=>{
                 $push: {history: history}
             });
         db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
-            { $set: {cart: []}})
+            { $set: {cart: []}});
 
         res.render('my_cart.hbs',{
             purchase: true,
@@ -645,7 +645,6 @@ app.post('/checkout', (req,res)=>{
             colorMode: document.colorMode
         })
     });
-
 });
 //Checkout End
 

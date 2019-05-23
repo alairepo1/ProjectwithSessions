@@ -337,9 +337,7 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
                         })
                 }
             });
-            setTimeout(function () {
                 response.redirect('/shop')
-            }, 3000);
         }
     })
 });

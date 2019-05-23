@@ -447,6 +447,7 @@ app.post('/registerAdmin', (req, res) => {
                     email: req.body.email,
                     pwd: bcryptjs.hashSync(req.body.pwd, salt),
                     isAdmin: true,
+                    colorMode: 'normal',
                     cart: []
                 });
                 req.session.userId = req.body.email;
@@ -637,14 +638,14 @@ app.post('/checkout', (req,res)=>{
             });
         db.collection('Accounts').findOneAndUpdate({email: req.session.userId},
             { $set: {cart: []}})
-    });
-    setTimeout(function () {
+
         res.render('my_cart.hbs',{
             purchase: true,
             username: req.session.userId,
             colorMode: document.colorMode
         })
-    }, 3000);
+    });
+
 });
 //Checkout End
 

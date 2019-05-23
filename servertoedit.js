@@ -641,7 +641,8 @@ app.post('/checkout', (req,res)=>{
     setTimeout(function () {
         res.render('my_cart.hbs',{
             purchase: true,
-            username: req.session.userId
+            username: req.session.userId,
+            colorMode: document.colorMode
         })
     }, 3000);
 });

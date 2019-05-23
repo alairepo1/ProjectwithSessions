@@ -1,3 +1,4 @@
+
 const utils = require('./server_utils/mongo_util.js');
 const express = require('express');
 const session = require('express-session');
@@ -67,7 +68,6 @@ app.use(session({
     }
 }));
 
-
 //Needed to use partials folder
 hbs.registerPartials(__dirname + '/views/partials');
 
@@ -77,7 +77,7 @@ hbs.registerHelper('getCurrentYear', () => {
 });
 
 
-//Helpers End
+//Helpers Endd
 
 
 app.set('view engine', 'hbs');
@@ -101,8 +101,8 @@ const redirectHome = (req, res, next) => {
     }
 };
 
-//
-//My cart start
+
+
 app.get('/my_cart', redirectLogin, (request, response) => {
     var db = utils.getDb();
 
@@ -123,13 +123,10 @@ app.get('/my_cart', redirectLogin, (request, response) => {
         response.render('my_cart.hbs',{
             products: cart_list,
             total_price: total,
-            username: request.session.userId,
-            colorMode: docs[0].colorMode
+            username: request.session.userId
         })
     });
 });
-//My cart End
-//
 
 //
 //Shop page
@@ -145,20 +142,15 @@ app.get('/shop', redirectLogin, (request, response) => {
         if (!docs){
             throw err;
         }
-        //console.log(productChunks);
         db.collection("Accounts").findOne({email: request.session.userId}, (err, result) => {
             response.render('shop.hbs',{
                 itemerror: false,
                 admin: result.isAdmin,
                 products: docs,
-                username: request.session.userId,
-                colorMode: result.colorMode,
-
+                username: request.session.userId
             })
 
         });
-
-
 
     });
 });
@@ -184,20 +176,13 @@ app.get('/',(req, res) => {
 
 });
 
-//Render Home page
+
 app.get('/home', redirectLogin, (req, res) => {
-    var db = utils.getDb();
-
-    db.collection('Accounts').findOne({email: `${req.session.userId}`}, (err, doc) => {
-        res.render('home.hbs', {
-            username: req.session.userId,
-            colorMode: doc.colorMode
-        })
-
+    // const { user } = res.locals;
+    res.render('home.hbs', {
+        username: req.session.userId
     })
 });
-//Render home page end
-
 
 app.post('/login', redirectHome, (req, res) => {
     var db = utils.getDb();
@@ -234,7 +219,7 @@ app.post('/login', redirectHome, (req, res) => {
     });
 });
 
-//Register Start
+
 app.post('/register', redirectHome, (req, res) => {
     var db = utils.getDb();
     db.collection('Accounts').find({email: `${req.body.email}`}).toArray().then(function (feedbacks) {
@@ -252,8 +237,7 @@ app.post('/register', redirectHome, (req, res) => {
                     pwd: bcryptjs.hashSync(req.body.pwd, salt),
                     isAdmin: false,
                     cart: [],
-                    history: [],
-                    colorMode: 'normal'
+                    history: []
                 });
                 req.session.userId = req.body.email;
                 return res.redirect('/home')
@@ -274,7 +258,7 @@ app.post('/register', redirectHome, (req, res) => {
         }
     })
 });
-//Register end
+
 
 
 app.get('/logout', redirectLogin, (req, res) => {
@@ -346,7 +330,9 @@ app.post('/add-to-cart', redirectLogin,(request, response)=> {
                         })
                 }
             });
+            setTimeout(function () {
                 response.redirect('/shop')
+            }, 3000);
         }
     })
 });
@@ -571,8 +557,7 @@ app.get("/product/:id", (req, res) => {
                     res.render("productPage.hbs", {
                         product: result,
                         username: req.session.userId,
-                        admin: result1.isAdmin,
-                        colorMode : result1.colorMode
+                        admin: result1.isAdmin
 
                     })
                 }
@@ -618,8 +603,7 @@ app.get('/logs', (req, res) => {
     })
 });
 
-
-// Checkout Start
+// Checkout method for week 3
 app.post('/checkout', (req,res)=>{
     var today = new Date();
     var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -658,6 +642,7 @@ app.post('/changecolor/:color',(req, res) => {
     res.redirect('/home')
 });
 //Change theme end
+
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

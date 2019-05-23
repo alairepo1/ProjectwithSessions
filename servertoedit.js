@@ -123,7 +123,8 @@ app.get('/my_cart', redirectLogin, (request, response) => {
         response.render('my_cart.hbs',{
             products: cart_list,
             total_price: total,
-            username: request.session.userId
+            username: request.session.userId,
+            colorMode: docs[0].colorMode
         })
     });
 });
@@ -147,7 +148,8 @@ app.get('/shop', redirectLogin, (request, response) => {
                 itemerror: false,
                 admin: result.isAdmin,
                 products: docs,
-                username: request.session.userId
+                username: request.session.userId,
+                colorMode: result.colorMode
             })
 
         });
@@ -179,9 +181,13 @@ app.get('/',(req, res) => {
 
 app.get('/home', redirectLogin, (req, res) => {
     // const { user } = res.locals;
-    res.render('home.hbs', {
-        username: req.session.userId
-    })
+    var db = utils.getDb();
+    db.collection('Accounts').findOne({email: req.session.userId}, (err, result)=>{
+        res.render('home.hbs', {
+            username: req.session.userId,
+            colorMode: result.colorMode
+        })
+    });
 });
 
 app.post('/login', redirectHome, (req, res) => {
@@ -236,6 +242,7 @@ app.post('/register', redirectHome, (req, res) => {
                     email: req.body.email,
                     pwd: bcryptjs.hashSync(req.body.pwd, salt),
                     isAdmin: false,
+                    colorMode: 'normal',
                     cart: [],
                     history: []
                 });
@@ -556,6 +563,7 @@ app.get("/product/:id", (req, res) => {
                     console.log(err);
                 else {
                     res.render("productPage.hbs", {
+                        colorMode: result1.colorMode,
                         product: result,
                         username: req.session.userId,
                         admin: result1.isAdmin
